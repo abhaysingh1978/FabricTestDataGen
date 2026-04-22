@@ -1,11 +1,11 @@
 # Business Requirements Document (BRD)
 
-**Project:** Fabric — Agentic ETL, AI & Reporting Platform
-**Version:** 1.0.0
-**Status:** Draft for Review
-**Prepared by:** Technology Consulting Practice
-**Date:** April 2026
-**Classification:** Confidential
+**Project:** Fabric — Agentic ETL, AI & Multi-Agent Platform  
+**Version:** 2.0.0  
+**Status:** Approved  
+**Prepared by:** Technology Consulting Practice  
+**Date:** April 2026  
+**Classification:** Confidential  
 
 ---
 
@@ -21,7 +21,7 @@
 8. [Constraints & Assumptions](#8-constraints--assumptions)
 9. [Success Criteria](#9-success-criteria)
 10. [Risks](#10-risks)
-11. [Approval & Sign-off](#11-approval--sign-off)
+11. [Change Log](#11-change-log)
 
 ---
 
@@ -33,8 +33,10 @@
 - **Modern real-time dashboarding** and reporting
 - **Multi-Agent AI frameworks** with Agent-to-Agent (A2A) communication
 - **Configurable AI inference** supporting both local open-source models (DeepSeek, Llama, Gemma, Mistral, Phi) and cloud-hosted models (Anthropic Claude, Google Gemini, OpenAI GPT-4o)
+- **Self-service flow onboarding** — new use case domains can be configured and launched via the UI without engineering involvement
+- **Enterprise data source connectivity** — 40+ source types with per-flow configuration and infrastructure wizards
 
-The platform is designed as a **live, interactive demonstration environment** to be presented to prospective and existing clients across three verticals: **Banking, Financial Services & Insurance (BFSI)**, **Sales**, and **Economics**. It doubles as a production blueprint that can be instantiated for client engagements.
+The platform is designed as a **live, interactive demonstration environment** presented to prospective and existing clients. It doubles as a production blueprint that can be instantiated for client engagements. Version 2.0 adds self-service extensibility, removing the dependency on engineering for demo customisation.
 
 ---
 
@@ -46,12 +48,14 @@ The Technology Consulting Practice is experiencing increased demand from enterpr
 
 1. Proof-of-concept environments for AI-driven data platforms before committing to full implementations
 2. Real demonstrations of multi-agent orchestration, not slide-deck promises
-3. Configurable AI stacks that allow them to evaluate open-source vs. proprietary models in the context of their own data
+3. Configurable AI stacks that allow evaluation of open-source vs. proprietary models in the context of their own data
 4. Integrated ETL + AI + Dashboarding solutions rather than point-solution assemblies
+5. Domain-specific demonstrations tailored to the prospect's industry vertical
+6. Transparency around data connectivity — clients ask "can this connect to our systems?"
 
 ### 2.2 Problem Statement
 
-Currently, sales and pre-sales cycles suffer from:
+Sales and pre-sales cycles suffer from the following pain points:
 
 | Pain Point | Impact |
 |---|---|
@@ -60,24 +64,26 @@ Currently, sales and pre-sales cycles suffer from:
 | No model comparison capability | Clients cannot evaluate DeepSeek vs Claude vs Gemini side-by-side |
 | Domain-agnostic demos | Generic demos fail to resonate with BFSI, Sales, or Economics buyers |
 | Long time-to-demo | Current setup takes 2–3 weeks per engagement |
+| No data source transparency | Clients question integration depth without seeing real connector configurations |
+| Engineering dependency for new domains | Adding a new vertical requires code changes, delaying pre-sales cycles |
 
 ### 2.3 Opportunity
 
-A single, high-quality, configurable demo platform — **Fabric** — addresses all of the above, compresses pre-sales cycles, and directly demonstrates the technical depth the Practice can deliver.
+A single, high-quality, configurable demo platform — **Fabric v2** — addresses all of the above. It compresses pre-sales cycles, demonstrates technical depth, allows consultants to onboard new industry domains without engineering, and shows real connector configuration depth to technically sophisticated buyers.
 
 ---
 
 ## 3. Stakeholders
 
-| Role | Name/Team | Interest |
+| Role | Team | Interest |
 |---|---|---|
-| Executive Sponsor | Managing Director, Tech Practice | Revenue, competitive positioning |
-| Product Owner | VP Consulting | Demo quality, win rates |
-| Pre-Sales Team | Solutions Engineers | Ease of use, client customisation |
-| Delivery Team | Principal Engineers | Buildability, maintainability |
-| End Clients (Prospects) | BFSI / Sales / Economy buyers | Trust, technical credibility |
-| Data Engineering Team | Data Practice Lead | ETL architecture standards |
-| AI/ML Team | AI Practice Lead | Model integration, agent design |
+| Executive Sponsor | Managing Director, Tech Practice | Revenue growth, competitive positioning |
+| Product Owner | VP Consulting | Demo quality, win-rate improvement |
+| Pre-Sales Team | Solutions Engineers | Ease of use, client customisation, zero-code flow creation |
+| Delivery Team | Principal Engineers | Buildability, maintainability, extensibility |
+| End Clients (Prospects) | BFSI / Sales / Economy / Other buyers | Technical credibility, relevance to their domain |
+| Data Engineering Practice | Data Practice Lead | ETL architecture standards, connector coverage |
+| AI/ML Practice | AI Practice Lead | Model integration, agent design, prompt quality |
 
 ---
 
@@ -85,12 +91,15 @@ A single, high-quality, configurable demo platform — **Fabric** — addresses 
 
 | # | Objective | Metric | Target |
 |---|---|---|---|
-| BO-01 | Reduce demo preparation time | Hours per engagement | ≤ 4hrs (from ~60hrs) |
+| BO-01 | Reduce demo preparation time | Hours per engagement | ≤ 4 hrs (from ~60 hrs) |
 | BO-02 | Increase demo-to-proposal conversion | % conversion | +25% vs baseline |
 | BO-03 | Showcase ETL throughput capability | Records/second demonstrated | ≥ 1M records/cycle |
-| BO-04 | Enable AI model switching | # models configurable | ≥ 10 (5 local + 5 cloud) |
-| BO-05 | Cover target verticals | # verticals with use cases | 3 (BFSI, Sales, Economy) |
-| BO-06 | Reduce time-to-new-use-case | Days to add a new demo domain | ≤ 2 business days |
+| BO-04 | Enable AI model switching | # models configurable at runtime | ≥ 10 (5 local + 5 cloud) |
+| BO-05 | Cover target verticals out of the box | # verticals with built-in use cases | 3 (BFSI, Sales, Economy) |
+| BO-06 | Enable new domain onboarding without code | Time to add a new demo domain | ≤ 30 minutes via UI |
+| BO-07 | Demonstrate data connectivity depth | # data source types connectable | ≥ 40 across 7 categories |
+| BO-08 | Support infrastructure configuration transparency | # ETL services with full wizard | ≥ 20 services |
+| BO-09 | Allow built-in demo customisation | Built-in flows editable without code | 100% of built-in flows |
 
 ---
 
@@ -98,113 +107,104 @@ A single, high-quality, configurable demo platform — **Fabric** — addresses 
 
 ### 5.1 In Scope
 
-- Interactive demo application (web-based, single-page application)
-- Three vertical domains with live sub-use-cases (see Section 6)
-- Live ETL pipeline simulation with step-by-step visualisation
-- Multi-agent framework with A2A communication display
-- Real-time AI query interface connected to live model APIs
-- Configuration panel for model and infrastructure selection
-- Analytics dashboards per use case domain
-- Supporting documentation (BRD, FRD, Tech Architecture, API Spec, Runbook)
-- Local deployment guide and Docker setup
+**v2.0 (Current)**
 
-### 5.2 Out of Scope (v1.0)
+- Five built-in use cases across three verticals (BFSI: 3, Sales: 1, Economy: 1)
+- Ten AI models (5 cloud, 5 local via Ollama)
+- Six-stage ETL pipeline simulation with live log terminal
+- Multi-agent framework with A2A message visualisation
+- Domain-specific analytics dashboards (BFSI, Sales, Economy)
+- AI query interface with domain-specific system prompts and preset queries
+- **Configuration management:** API key storage, model selection, ETL infrastructure selection
+- **Infrastructure wizards:** Multi-step guided configuration for 23+ ETL services with embedded how-to guides
+- **Data source management:** Per-flow configuration of 40+ source types across 7 categories
+- **AI provider setup guides:** Step-by-step onboarding for Anthropic, Google AI, OpenAI, Ollama
+- **Flow Manager:** Create custom flows with category, icon, colour, datasets, agents, KPIs
+- **Built-in flow editing:** Override any built-in flow's metadata; reset to defaults on demand
+- **Intelligent suggestions:** Domain-ranked dataset and agent autocomplete (16 industry domains)
+- **Flow persistence:** All custom flows and overrides stored in browser localStorage
+- Browser-based SPA — no backend required for demo mode
 
-- Production data integration with real client systems
-- User authentication and access management (v2)
-- Multi-tenant client isolation (v2)
-- Mobile native application
-- Offline/kiosk mode
+### 5.2 Out of Scope (v2.0)
+
+- Real-time data pipeline execution (simulation only)
+- User authentication and multi-user access control
+- Server-side configuration persistence
+- Mobile/tablet optimised layout
+- Internationalisation (i18n)
+- White-label theming per client
+
+### 5.3 Future Considerations (v3.0+)
+
+- Real data connector execution mode (Airbyte/Fivetran integration)
+- Backend configuration profiles (per presenter, per client)
+- Client-specific branding themes
+- Embedded analytics export (PDF/PowerPoint)
+- Natural language flow creation ("Create a healthcare analytics flow")
 
 ---
 
 ## 6. Use Case Domains
 
-### 6.1 BFSI — Banking, Financial Services & Insurance
+### 6.1 Built-in Domains
 
-| Sub-Domain | Description | Key Audience |
-|---|---|---|
-| **Stock Analysis** | Real-time market data ETL, technical analysis, AI-driven pattern detection, anomaly alerts, predictive analytics | Capital Markets, Quant Teams |
-| **Financial Advisory (Wealth Management)** | Portfolio construction, risk profiling, rebalancing signals, tax optimisation, ESG scoring | Private Banking, Wealth Managers |
-| **Fund Performance** | Multi-fund benchmarking, attribution analysis, factor exposure, institutional reporting automation | Asset Management, CIOs |
+| Domain | Category | Use Cases | Agents | Datasets |
+|---|---|---|---|---|
+| Stock Analysis | BFSI | 1 | Market Data, Technical Analysis, Sentiment, Risk, Report | NYSE/NASDAQ, Options Chain, SEC Filings, Sentiment Data, Macro Indicators |
+| Financial Advisory | BFSI | 1 | Portfolio, Risk Profiler, Rebalance, Tax, Client Report | Portfolio Holdings, Market Benchmarks, Client Profiles, Tax Records, ESG Ratings |
+| Fund Performance | BFSI | 1 | Performance, Attribution, Factor, Compliance, Board Report | Fund NAV History, Benchmark Indices, Factor Models, Compliance Rules, Investor Reports |
+| Smartphone Sales | Sales | 1 | Market Share, Sentiment, Pricing, Channel, Forecast | Retail POS Data, Review Platforms, Pricing APIs, Channel Reports, Carrier Data |
+| World Economies | Economy | 1 | GDP, Trade, Inflation, FX, Geopolitical Risk | World Bank API, IMF Data, Central Bank Feeds, Trade Statistics, Geopolitical Indices |
 
-### 6.2 Sales — Consumer & Retail Intelligence
+### 6.2 Custom Domain Capability
 
-| Sub-Domain | Description | Key Audience |
-|---|---|---|
-| **Smartphone Sales Research** | Apple vs Samsung vs Google Pixel global sales intelligence, market share, review sentiment analysis, trend forecasting | CMOs, Product Strategy, Sales Ops |
+Pre-sales consultants can create new domains via the Flow Manager without engineering involvement. The system provides:
 
-### 6.3 Economy — Macroeconomic Intelligence
-
-| Sub-Domain | Description | Key Audience |
-|---|---|---|
-| **World Top 10 Economies** | Comparative GDP, inflation, trade flows, debt levels, growth forecasts, geopolitical risk scoring | Strategy, Policy Research, PE/VC |
+- Domain name, icon, description, and category assignment
+- Tag-based dataset and agent definition with intelligent autocomplete
+- Up to 4 configurable KPI cards with values and delta indicators
+- Immediate appearance in the top navigation bar
+- AI query support via a generic domain-aware system prompt
 
 ---
 
 ## 7. Business Requirements
 
-### 7.1 ETL & Data Pipeline Requirements
+### 7.1 Platform Availability
 
-| ID | Requirement | Priority |
-|---|---|---|
-| BR-ETL-01 | The platform MUST simulate and visualise a multi-stage ETL pipeline (Extract, Validate, Transform, Aggregate, Load, Index) | Must Have |
-| BR-ETL-02 | The pipeline MUST show real-time progress with per-stage status and log streaming | Must Have |
-| BR-ETL-03 | The system MUST support configurable batch sizes (1K to 1M records) | Must Have |
-| BR-ETL-04 | The system MUST support configurable stream processors (Kafka, Flink, Spark, Pulsar, Kinesis) | Must Have |
-| BR-ETL-05 | The system MUST support configurable data warehouses (Snowflake, BigQuery, Redshift, DuckDB, Databricks) | Must Have |
-| BR-ETL-06 | ETL throughput metrics (records/sec, latency, errors) MUST be displayed live | Must Have |
-| BR-ETL-07 | The pipeline MUST be stoppable and re-runnable at any time | Must Have |
+| ID | Requirement |
+|---|---|
+| BR-01 | The platform shall run entirely in a web browser with no backend infrastructure for demo purposes |
+| BR-02 | The platform shall function offline (local AI models + simulated ETL) when network access is unavailable |
+| BR-03 | The platform shall load and be demo-ready within 5 seconds on a standard laptop |
 
-### 7.2 Multi-Agent & A2A Requirements
+### 7.2 Demo Experience
 
-| ID | Requirement | Priority |
-|---|---|---|
-| BR-AGT-01 | Each use case MUST have a defined set of domain-specific AI agents (min. 5 per use case) | Must Have |
-| BR-AGT-02 | Agent activation status MUST be visually displayed during pipeline runs | Must Have |
-| BR-AGT-03 | A2A communication events MUST be visible in the ETL log stream | Must Have |
-| BR-AGT-04 | Agent count and active ratio MUST be shown in the UI | Must Have |
-| BR-AGT-05 | Agent framework MUST be extensible to support new agent types without core changes | Should Have |
+| ID | Requirement |
+|---|---|
+| BR-04 | A consultant shall be able to demonstrate a live ETL pipeline with multi-agent activity within 60 seconds of opening the platform |
+| BR-05 | The platform shall support switching AI models during a live demo without page reload |
+| BR-06 | AI query responses shall be contextually relevant to the active use case domain |
+| BR-07 | All visual elements shall be legible on a 1920×1080 screen projected to a conference room display |
 
-### 7.3 AI Model Requirements
+### 7.3 Configuration & Extensibility
 
-| ID | Requirement | Priority |
-|---|---|---|
-| BR-AI-01 | The system MUST support at minimum 5 local/open-source models | Must Have |
-| BR-AI-02 | The system MUST support at minimum 5 cloud-hosted models | Must Have |
-| BR-AI-03 | The user MUST be able to switch models without page reload | Must Have |
-| BR-AI-04 | The selected model MUST be visually identified at all times | Must Have |
-| BR-AI-05 | AI query responses MUST be contextually aware of the active use case domain | Must Have |
-| BR-AI-06 | Pre-set domain-relevant query suggestions MUST be available per use case | Must Have |
-| BR-AI-07 | The system SHOULD support streaming AI responses | Should Have |
+| ID | Requirement |
+|---|---|
+| BR-08 | A consultant shall be able to add a new custom flow domain via the UI in under 30 minutes |
+| BR-09 | A consultant shall be able to edit any built-in flow's content (agents, datasets, KPIs) without code changes |
+| BR-10 | Edited built-in flows shall be resettable to their default state at any time |
+| BR-11 | All configuration (API keys, infra settings, custom flows) shall persist across browser sessions via localStorage |
+| BR-12 | The platform shall provide embedded setup guides for all supported ETL infrastructure services |
+| BR-13 | The platform shall provide step-by-step onboarding guides for all AI provider API keys |
 
-### 7.4 Dashboard & Reporting Requirements
+### 7.4 Data Source Demonstration
 
-| ID | Requirement | Priority |
-|---|---|---|
-| BR-DASH-01 | Each use case MUST have a domain-specific analytics dashboard with minimum 4 chart types | Must Have |
-| BR-DASH-02 | KPI cards MUST be displayed per domain with delta/trend indicators | Must Have |
-| BR-DASH-03 | Architecture overview bar MUST display active infrastructure components | Must Have |
-| BR-DASH-04 | Dashboards MUST update to reflect use case context on navigation | Must Have |
-
-### 7.5 Configuration Requirements
-
-| ID | Requirement | Priority |
-|---|---|---|
-| BR-CFG-01 | A configuration panel MUST allow selection of AI model (local and cloud) | Must Have |
-| BR-CFG-02 | ETL infrastructure parameters MUST be configurable (batch size, interval, agents, stores) | Must Have |
-| BR-CFG-03 | Configuration MUST persist within a session | Must Have |
-| BR-CFG-04 | Configuration changes MUST immediately reflect in the active dashboard | Must Have |
-
-### 7.6 UX & Presentation Requirements
-
-| ID | Requirement | Priority |
-|---|---|---|
-| BR-UX-01 | The application MUST be performant with no perceptible lag during demo | Must Have |
-| BR-UX-02 | The visual design MUST be distinctive, professional, and tech-forward | Must Have |
-| BR-UX-03 | Navigation between verticals and sub-use-cases MUST be instant | Must Have |
-| BR-UX-04 | The app MUST be runnable in a standard web browser with no plugins | Must Have |
-| BR-UX-05 | The app MUST be responsive and presentable on 1080p and 4K screens | Must Have |
+| ID | Requirement |
+|---|---|
+| BR-14 | The platform shall demonstrate connectivity to ≥ 40 data source types |
+| BR-15 | Data source configuration shall be scoped per flow, not globally |
+| BR-16 | Each configurable data source shall have a dedicated configuration form with provider-specific fields |
 
 ---
 
@@ -212,54 +212,59 @@ A single, high-quality, configurable demo platform — **Fabric** — addresses 
 
 ### 8.1 Constraints
 
-- Initial deployment is a demonstration/pilot environment — not connected to live financial data feeds
-- AI API calls require valid API keys (Anthropic, Google, OpenAI) for cloud models
-- Local model inference requires appropriate hardware (GPU recommended for 70B models)
-- Browser security policies (CORS) apply to all external API calls
+| Constraint | Detail |
+|---|---|
+| Browser-only | No server-side infrastructure — all state in browser localStorage |
+| Simulated ETL | Pipeline execution is simulated; no live data connectors in v2 |
+| API key security | Keys stored in localStorage — not suitable for shared/public deployments |
+| Screen resolution | Designed for 1280×800 minimum; optimum 1920×1080 |
+| Single user | No multi-user or role-based access in v2 |
 
 ### 8.2 Assumptions
 
-- Demo is primarily facilitated by a consultant/engineer for client walkthroughs
-- Client browsers support modern ES2022+ JavaScript
-- Internet connectivity is available during demos for cloud AI model calls
-- Simulated data is sufficient for demonstrating ETL and dashboarding capabilities in v1
+- Presenters have access to a laptop with Chrome 110+ or equivalent modern browser
+- AI provider API keys are sourced and funded by the practice or engagement budget
+- For local model demos, the presenter's laptop has ≥ 8GB RAM and Ollama installed
+- Custom flow domains created via the UI are for demonstration purposes; production data architecture requires engineering engagement
+- Browser localStorage is not cleared between sessions (presenters use a dedicated demo profile)
 
 ---
 
 ## 9. Success Criteria
 
-| Criterion | Measurement |
-|---|---|
-| Demo readiness | Platform can be launched and demoed within 15 minutes of setup |
-| Use case coverage | All 5 use cases fully functional with live ETL + AI + Dashboards |
-| Model switching | Any of 10 models can be selected and used for AI queries |
-| Pipeline simulation | ETL pipeline completes a full cycle with visible log streaming |
-| Client feedback | ≥ 80% "impressive / credible" rating in post-demo surveys |
-| Developer velocity | A new use case domain can be added in ≤ 2 business days |
+| Criterion | Measurement | Target |
+|---|---|---|
+| Demo preparation time | Average hours from request to demo-ready | ≤ 4 hours |
+| Demo-to-proposal conversion | % of demos resulting in proposal request | +25% vs pre-Fabric baseline |
+| New domain onboarding | Time for consultant to create new flow via UI | ≤ 30 minutes |
+| Platform reliability | Demo sessions with zero technical failures | ≥ 95% |
+| AI response quality | Facilitator satisfaction rating (1–5) | ≥ 4.2/5 |
+| Client engagement | Average time clients spend interacting with AI query | ≥ 3 minutes per demo |
+| Built-in flow coverage | % of built-in flows with at least one customisation option used | Tracked per engagement |
 
 ---
 
 ## 10. Risks
 
-| Risk | Likelihood | Impact | Mitigation |
-|---|---|---|---|
-| AI API rate limits during live demo | Medium | High | Implement response caching; fallback mock responses |
-| Browser compatibility issues | Low | Medium | Test on Chrome, Edge, Firefox; lock to tested versions |
-| Data realism concerns from clients | Medium | Medium | Use clearly labelled simulated data; offer live integration path |
-| Scope creep from pre-sales requests | High | Medium | Lock v1 scope; maintain a v2 backlog |
-| Local model latency (large models) | Medium | Low | Offer cloud fallback; tune default to faster models |
+| ID | Risk | Likelihood | Impact | Mitigation |
+|---|---|---|---|---|
+| R-01 | AI API rate limit hit during live demo | Medium | High | Cache last response; have fallback model pre-selected |
+| R-02 | Ollama local model too slow on presenter laptop | Medium | Medium | Pre-qualify laptop; default to cloud model; use 7B models |
+| R-03 | localStorage cleared (browser update, incognito) | Low | Medium | Export/import config feature planned for v3 |
+| R-04 | Gemini 2.5 Pro returns empty response | Low | High | Token budget guardrail implemented (min 8,192 output tokens) |
+| R-05 | Custom flow not sufficiently domain-specific | Low | Medium | Generic AI prompt fallback; consultant customises presets |
+| R-06 | Client asks for live data — simulation not sufficient | Medium | Medium | Position as blueprint; offer rapid POC engagement |
+| R-07 | API key exposed via browser DevTools | Low | High | Advise dedicated demo browser profile; v3 proxy layer |
 
 ---
 
-## 11. Approval & Sign-off
+## 11. Change Log
 
-| Role | Name | Signature | Date |
+| Version | Date | Author | Changes |
 |---|---|---|---|
-| Executive Sponsor | | | |
-| Product Owner | | | |
-| Technology Lead | | | |
-| Pre-Sales Lead | | | |
+| 1.0.0 | April 2026 | Technology Consulting Practice | Initial release — 5 use cases, 10 models, ETL simulation |
+| 2.0.0 | April 2026 | Technology Consulting Practice | Added Flow Manager, built-in flow editing, infrastructure wizards with guides, per-flow data source management (40+ types), AI provider setup guides, API key management, RDBMS warehouse support, intelligent dataset/agent suggestions |
 
 ---
 
-*Document End — BRD v1.0.0*
+*Document End — BRD v2.0.0*
