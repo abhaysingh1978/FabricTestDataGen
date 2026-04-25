@@ -10,6 +10,7 @@ export interface SourceType {
 }
 
 export type SourceCategory =
+  | 'Unstructured Data'
   | 'Files & Storage'
   | 'SQL Databases'
   | 'NoSQL & Search'
@@ -19,6 +20,7 @@ export type SourceCategory =
   | 'Cloud Warehouses'
 
 export const SOURCE_CATEGORIES: SourceCategory[] = [
+  'Unstructured Data',
   'Files & Storage',
   'SQL Databases',
   'NoSQL & Search',
@@ -28,7 +30,27 @@ export const SOURCE_CATEGORIES: SourceCategory[] = [
   'Cloud Warehouses',
 ]
 
+export const UNSTRUCTURED_TYPE_IDS = new Set<string>([
+  'PDF Document', 'Word Document', 'Plain Text', 'Markdown',
+  'HTML Page', 'Email (EML)', 'Audio Transcript', 'Image OCR', 'Code Files',
+])
+
+export function isUnstructuredType(typeId: string): boolean {
+  return UNSTRUCTURED_TYPE_IDS.has(typeId)
+}
+
 export const SOURCE_TYPES: SourceType[] = [
+  // ── Unstructured Data ──────────────────────────────────────────────────────
+  { id: 'PDF Document',      label: 'PDF Document',     category: 'Unstructured Data', color: '#EF4444', icon: '📄', description: 'Reports, contracts, invoices — auto-detect entities and schema', hasWizard: false, badge: 'AI' },
+  { id: 'Word Document',     label: 'Word Document',    category: 'Unstructured Data', color: '#2563EB', icon: '📃', description: 'DOCX files — extract structured fields from prose content', hasWizard: false, badge: 'AI' },
+  { id: 'Plain Text',        label: 'Plain Text',       category: 'Unstructured Data', color: '#64748B', icon: '📝', description: 'Logs, notes, transcripts — semantic profiling on raw text', hasWizard: false, badge: 'AI' },
+  { id: 'Markdown',          label: 'Markdown',         category: 'Unstructured Data', color: '#0EA5E9', icon: '📐', description: 'Knowledge bases and READMEs — section-aware ingestion', hasWizard: false },
+  { id: 'HTML Page',         label: 'HTML Page',        category: 'Unstructured Data', color: '#F59E0B', icon: '🌐', description: 'Web pages and blog content — strip boilerplate and extract entities', hasWizard: false },
+  { id: 'Email (EML)',       label: 'Email Archive',    category: 'Unstructured Data', color: '#8B5CF6', icon: '✉', description: 'EML/MBOX archives — thread reconstruction with PII detection', hasWizard: false },
+  { id: 'Audio Transcript',  label: 'Audio Transcript', category: 'Unstructured Data', color: '#EC4899', icon: '🎙', description: 'Meeting and call transcripts — speaker tagging and topic detection', hasWizard: false },
+  { id: 'Image OCR',         label: 'Image (OCR)',      category: 'Unstructured Data', color: '#10B981', icon: '🖼', description: 'Scanned documents and screenshots — OCR + entity extraction', hasWizard: false },
+  { id: 'Code Files',        label: 'Code Files',       category: 'Unstructured Data', color: '#22D3EE', icon: '💻', description: 'Source repositories — semantic mapping of modules and APIs', hasWizard: false },
+
   // ── Files & Storage ────────────────────────────────────────────────────────
   { id: 'Local Files',        label: 'Local Files',           category: 'Files & Storage',   color: '#64748B', icon: '📁', description: 'Read CSV, JSON, Parquet, Excel from a local directory', hasWizard: true },
   { id: 'AWS S3',             label: 'AWS S3',                category: 'Files & Storage',   color: '#FF9900', icon: '🪣', description: 'Read objects from Amazon S3 buckets', hasWizard: true, badge: 'Popular' },

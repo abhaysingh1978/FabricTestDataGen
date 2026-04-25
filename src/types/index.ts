@@ -23,6 +23,50 @@ export interface DataSource {
   enabled: boolean
   config: Record<string, string>
   createdAt: string
+  // Unstructured ingestion + semantics + signoff
+  isUnstructured?: boolean
+  sampleContent?: string
+  semantics?: SemanticProfile
+  signoff?: SignoffRecord
+}
+
+export interface SemanticEntity {
+  name: string
+  type: string         // PERSON | ORG | DATE | MONEY | PRODUCT | LOCATION | EMAIL | PHONE | OTHER
+  confidence: number   // 0..1
+  examples: string[]
+}
+
+export interface SemanticField {
+  name: string
+  type: 'string' | 'number' | 'date' | 'boolean' | 'array' | 'object'
+  description: string
+  examples: string[]
+}
+
+export interface SemanticProfile {
+  summary: string
+  domain: string                // finance | sales | hr | legal | tech | general | ...
+  language: string
+  recordType: 'document' | 'transcript' | 'log' | 'tabular' | 'mixed' | 'other'
+  topics: string[]
+  entities: SemanticEntity[]
+  inferredSchema: SemanticField[]
+  quality: {
+    completeness: number        // 0..1
+    consistency: number         // 0..1
+    containsPII: boolean
+    piiTypes: string[]
+  }
+  analyzedAt: string
+  modelUsed: string
+}
+
+export interface SignoffRecord {
+  status: 'verified' | 'rejected'
+  signedBy: string
+  signedAt: string
+  notes?: string
 }
 
 export interface KPI {

@@ -44,3 +44,8 @@ export function saveAPIKeys(keys: Partial<APIKeys>) {
 export function getKey(provider: ProviderKey): string {
   return getAPIKeys()[provider]
 }
+
+export function hasKey(provider: ProviderKey): boolean {
+  const v = getAPIKeys()[provider]
+  return !!v && v.length > 0
+}

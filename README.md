@@ -104,6 +104,7 @@ Click **Manage Sources ›** in Config to open the Data Source Manager. Configur
 
 | Category | Sources |
 |---|---|
+| **Unstructured Data** | PDF, Word, Plain Text, Markdown, HTML, Email, Audio Transcript, Image OCR, Code Files |
 | Files & Storage | Local Files, AWS S3, Azure Blob, GCS, SFTP |
 | SQL Databases | PostgreSQL, MySQL, SQL Server, Oracle, DB2, Sybase, SQLite |
 | NoSQL & Search | MongoDB, Elasticsearch, Redis, DynamoDB, Cassandra |
@@ -111,6 +112,17 @@ Click **Manage Sources ›** in Config to open the Data Source Manager. Configur
 | SaaS Connectors | Salesforce, Google Sheets, HubSpot, Stripe, GitHub, Jira, Notion |
 | Streaming | Kafka, Kinesis, Pulsar, RabbitMQ, Azure Event Hubs |
 | Cloud Warehouses | Snowflake, BigQuery, Redshift, Databricks |
+
+### Unstructured Ingestion & Sign-Off
+
+For unstructured sources (PDF, transcripts, emails, etc.), Aethon runs a 4-step ingestion flow:
+
+1. **Content** — paste a sample or upload a file, pick the analyzer model
+2. **Detect Semantics** — AI infers domain, entities, schema fields, topics, language, and PII; heuristic fallback when no API key is configured
+3. **Verify** — review and edit the detected profile (entities, schema, topics, quality scores)
+4. **Sign Off** — approve (verified) or reject the source with your name + optional notes; persisted in localStorage
+
+Sources display a status badge: `✓ Verified`, `⏳ Pending Sign-Off`, `! Unverified`, or `✕ Rejected`. The pipeline simulation uses verified sources to generate semantic and PII log lines.
 
 ---
 

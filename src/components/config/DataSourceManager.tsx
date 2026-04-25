@@ -1,10 +1,11 @@
 import { useState, useCallback } from 'react'
 import { COLORS } from '@lib/theme'
 import { DEMOS } from '@data/usecases'
-import { SOURCE_TYPES, SOURCE_CATEGORIES, type SourceCategory } from '@data/sourceTypes'
-import { getSources, saveSources, toggleSource, deleteSource, makeId } from '@lib/dataSources'
+import { SOURCE_TYPES, SOURCE_CATEGORIES, type SourceCategory, isUnstructuredType } from '@data/sourceTypes'
+import { getSources, saveSources, toggleSource, deleteSource, updateSource, makeId } from '@lib/dataSources'
 import { INFRA_DEFS } from '@data/infraConfig'
 import { InfraWizard } from './InfraWizard'
+import { UnstructuredIngestion } from './UnstructuredIngestion'
 import type { DataSource } from '@types/index'
 
 interface DataSourceManagerProps {
@@ -149,6 +150,34 @@ function SourceCard({ source, onEdit, onToggle, onDelete }: SourceCardProps) {
   const icon = typeInfo?.icon ?? '⚙'
   const configuredFields = Object.values(source.config).filter(v => v.trim()).length
   const totalFields = INFRA_DEFS[source.type]?.fields.length ?? 0
+  const isUnstructured = source.isUnstructured || isUnstructuredType(source.type)
+
+  // Status text
+  let statusText: string
+  if (isUnstructured) {
+    if (source.signoff?.status === 'verified') {
+      statusText = `✓ Signed off by ${source.signoff.signedBy} · ${source.semantics?.entities.length ?? 0} entities · ${source.semantics?.inferredSchema.length ?? 0} fields`
+    } else if (source.signoff?.status === 'rejected') {
+      statusText = `✕ Rejected by ${source.signoff.signedBy}`
+    } else if (source.semantics) {
+      statusText = `Analyzed · awaiting sign-off`
+    } else {
+      statusText = `Unverified · click Ingest to analyze`
+    }
+  } else {
+    statusText = totalFields > 0
+      ? `${configuredFields}/${totalFields} fields configured`
+      : 'Basic source · click Edit to configure'
+  }
+
+  // Status badge
+  let statusBadge: { label: string; color: string } | null = null
+  if (isUnstructured) {
+    if (source.signoff?.status === 'verified') statusBadge = { label: '✓ Verified', color: COLORS.accent3 }
+    else if (source.signoff?.status === 'rejected') statusBadge = { label: '✕ Rejected', color: COLORS.accentDanger }
+    else if (source.semantics) statusBadge = { label: '⏳ Pending Sign-Off', color: COLORS.accentWarn }
+    else statusBadge = { label: '! Unverified', color: COLORS.accentDanger }
+  }
 
   return (
     <div style={{
@@ -171,18 +200,21 @@ function SourceCard({ source, onEdit, onToggle, onDelete }: SourceCardProps) {
 
       {/* Info */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2, flexWrap: 'wrap' }}>
           <span style={{ fontFamily: 'monospace', fontSize: 11, fontWeight: 700, color: COLORS.text }}>
             {source.name}
           </span>
           <span style={{ fontFamily: 'monospace', fontSize: 8, color, background: `${color}14`, border: `1px solid ${color}44`, borderRadius: 3, padding: '1px 6px' }}>
             {source.type}
           </span>
+          {statusBadge && (
+            <span style={{ fontFamily: 'monospace', fontSize: 8, fontWeight: 700, color: statusBadge.color, background: `${statusBadge.color}14`, border: `1px solid ${statusBadge.color}55`, borderRadius: 3, padding: '1px 6px' }}>
+              {statusBadge.label}
+            </span>
+          )}
         </div>
         <div style={{ fontFamily: 'monospace', fontSize: 9, color: COLORS.textMuted }}>
-          {totalFields > 0
-            ? `${configuredFields}/${totalFields} fields configured`
-            : 'Basic source · click Edit to configure'}
+          {statusText}
         </div>
       </div>
 
@@ -205,7 +237,7 @@ function SourceCard({ source, onEdit, onToggle, onDelete }: SourceCardProps) {
         }} />
       </button>
 
-      {/* Edit */}
+      {/* Edit / Ingest / Verify */}
       <button
         onClick={onEdit}
         style={{
@@ -216,7 +248,7 @@ function SourceCard({ source, onEdit, onToggle, onDelete }: SourceCardProps) {
           transition: 'all 0.15s',
         }}
       >
-        Edit
+        {isUnstructured ? (source.signoff?.status === 'verified' ? 'Review' : source.semantics ? 'Sign Off' : 'Ingest') : 'Edit'}
       </button>
 
       {/* Delete */}
@@ -248,6 +280,7 @@ interface NameDialogProps {
 function NameDialog({ typeId, onConfirm, onCancel }: NameDialogProps) {
   const [name, setName] = useState(typeId)
   const typeInfo = SOURCE_TYPES.find(t => t.id === typeId)
+  const isUnstructured = isUnstructuredType(typeId)
 
   return (
     <div style={{
@@ -284,8 +317,10 @@ function NameDialog({ typeId, onConfirm, onCancel }: NameDialogProps) {
             }}
           />
         </div>
-        <div style={{ fontFamily: 'monospace', fontSize: 9, color: COLORS.textMuted, background: `${COLORS.accentWarn}10`, border: `1px solid ${COLORS.accentWarn}33`, borderRadius: 5, padding: '8px 10px' }}>
-          Detailed wizard config coming soon for this source type.
+        <div style={{ fontFamily: 'monospace', fontSize: 9, color: COLORS.textMuted, background: `${(isUnstructured ? typeInfo?.color ?? COLORS.accent : COLORS.accentWarn)}10`, border: `1px solid ${(isUnstructured ? typeInfo?.color ?? COLORS.accent : COLORS.accentWarn)}33`, borderRadius: 5, padding: '8px 10px' }}>
+          {isUnstructured
+            ? 'Next: paste a sample of your content and the analyzer will detect entities, schema, and quality. You\'ll then verify and sign off.'
+            : 'Detailed wizard config coming soon for this source type.'}
         </div>
         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
           <button onClick={onCancel} style={{ fontFamily: 'monospace', fontSize: 10, color: COLORS.textDim, background: COLORS.bgCard, border: `1px solid ${COLORS.border}`, borderRadius: 6, padding: '7px 14px', cursor: 'pointer' }}>
@@ -331,6 +366,7 @@ export function DataSourceManager({ onClose }: DataSourceManagerProps) {
   function handleNameConfirm(name: string) {
     const typeId = pendingType!
     const hasWizard = !!INFRA_DEFS[typeId]
+    const isUnstructured = isUnstructuredType(typeId)
     const newSource: DataSource = {
       id: makeId(),
       name,
@@ -339,14 +375,21 @@ export function DataSourceManager({ onClose }: DataSourceManagerProps) {
       enabled: true,
       config: {},
       createdAt: new Date().toISOString(),
+      ...(isUnstructured && { isUnstructured: true }),
     }
     const list = getSources(activeFlowId)
     saveSources(activeFlowId, [...list, newSource])
     setPendingType(null)
     refresh()
-    if (hasWizard) {
+    if (hasWizard || isUnstructured) {
       setEditingSource(newSource)
     }
+  }
+
+  function handleSaveUnstructured(updated: DataSource) {
+    updateSource(updated)
+    setEditingSource(null)
+    refresh()
   }
 
   function handleSaveConfig(source: DataSource, config: Record<string, string>) {
@@ -507,15 +550,7 @@ export function DataSourceManager({ onClose }: DataSourceManagerProps) {
               />
             )}
 
-            {pendingType && !INFRA_DEFS[pendingType] && (
-              <NameDialog
-                typeId={pendingType}
-                onConfirm={handleNameConfirm}
-                onCancel={() => setPendingType(null)}
-              />
-            )}
-
-            {pendingType && INFRA_DEFS[pendingType] && (
+            {pendingType && (
               <NameDialog
                 typeId={pendingType}
                 onConfirm={handleNameConfirm}
@@ -527,12 +562,21 @@ export function DataSourceManager({ onClose }: DataSourceManagerProps) {
       </div>
 
       {/* InfraWizard rendered at modal level so it overlays the whole DataSourceManager */}
-      {editingSource && INFRA_DEFS[editingSource.type] && (
+      {editingSource && INFRA_DEFS[editingSource.type] && !isUnstructuredType(editingSource.type) && (
         <InfraWizard
           service={editingSource.type}
           initialValues={editingSource.config}
           onSave={config => handleSaveConfig(editingSource, config)}
           onClose={() => setEditingSource(null)}
+        />
+      )}
+
+      {/* UnstructuredIngestion overlay for unstructured sources */}
+      {editingSource && isUnstructuredType(editingSource.type) && (
+        <UnstructuredIngestion
+          source={editingSource}
+          onSave={handleSaveUnstructured}
+          onCancel={() => setEditingSource(null)}
         />
       )}
     </div>
