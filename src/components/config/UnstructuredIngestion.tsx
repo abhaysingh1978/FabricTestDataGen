@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react'
 import { COLORS } from '@lib/theme'
 import { SOURCE_TYPES } from '@data/sourceTypes'
 import { analyzeSemantics } from '@lib/semantics'
+import { extractFile, acceptForType } from '@lib/fileExtract'
 import { AI_MODELS, DEFAULT_MODEL } from '@data/models'
 
 const FLAT_MODELS = [...AI_MODELS.cloud, ...AI_MODELS.local]
@@ -205,10 +206,11 @@ export function UnstructuredIngestion({ source, onSave, onCancel }: Props) {
         <div style={{ flex: 1, overflowY: 'auto', padding: '18px 22px' }}>
           {step === 'content' && (
             <ContentStep
+              sourceType={source.type}
               name={name} setName={setName}
               content={content} setContent={setContent}
               model={model} setModel={setModel}
-              error={error}
+              error={error} setError={setError}
               color={color}
               onAnalyze={runAnalysis}
               onCancel={onCancel}
@@ -271,23 +273,42 @@ export function UnstructuredIngestion({ source, onSave, onCancel }: Props) {
 // ── Step 1: Content ──────────────────────────────────────────────────────────
 
 function ContentStep({
-  name, setName, content, setContent, model, setModel, error, color, onAnalyze, onCancel,
+  sourceType, name, setName, content, setContent, model, setModel, error, setError, color, onAnalyze, onCancel,
 }: {
+  sourceType: string
   name: string; setName: (v: string) => void
   content: string; setContent: (v: string) => void
   model: AIModel; setModel: (m: AIModel) => void
-  error: string | null
+  error: string | null; setError: (v: string | null) => void
   color: string
   onAnalyze: () => void
   onCancel: () => void
 }) {
-  function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  const [extracting, setExtracting] = useState(false)
+  const [warning, setWarning] = useState<string | null>(null)
+  const [filename, setFilename] = useState<string | null>(null)
+
+  async function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => setContent(String(reader.result ?? ''))
-    reader.readAsText(file)
+    setExtracting(true)
+    setWarning(null)
+    setError(null)
+    setFilename(file.name)
+    try {
+      const result = await extractFile(file)
+      if (result.text) setContent(result.text)
+      if (result.warning) setWarning(result.warning)
+      if (!result.text && result.warning) setError(result.warning)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err))
+    } finally {
+      setExtracting(false)
+      e.target.value = ''
+    }
   }
+
+  const accept = acceptForType(sourceType)
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -304,9 +325,9 @@ function ContentStep({
       <div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
           <label style={{ fontFamily: 'monospace', fontSize: 10, color: COLORS.textDim }}>Sample Content (paste or upload)</label>
-          <label style={{ fontFamily: 'monospace', fontSize: 9, color: color, cursor: 'pointer', background: `${color}14`, border: `1px solid ${color}44`, borderRadius: 4, padding: '3px 8px' }}>
-            ↑ Upload file
-            <input type="file" accept=".txt,.md,.html,.csv,.json,.eml,.log" style={{ display: 'none' }} onChange={onFileChange} />
+          <label style={{ fontFamily: 'monospace', fontSize: 9, color, cursor: extracting ? 'wait' : 'pointer', background: `${color}14`, border: `1px solid ${color}44`, borderRadius: 4, padding: '3px 8px', opacity: extracting ? 0.6 : 1 }}>
+            {extracting ? '⏳ Extracting…' : `↑ Upload file (${accept})`}
+            <input type="file" accept={accept} style={{ display: 'none' }} onChange={onFileChange} disabled={extracting} />
           </label>
         </div>
         <textarea
@@ -321,8 +342,14 @@ function ContentStep({
           }}
         />
         <div style={{ fontFamily: 'monospace', fontSize: 9, color: COLORS.textMuted, marginTop: 4 }}>
+          {filename && <span style={{ color }}>📎 {filename} · </span>}
           {content.length.toLocaleString()} characters · first 12,000 sent for analysis
         </div>
+        {warning && (
+          <div style={{ fontFamily: 'monospace', fontSize: 9, color: COLORS.accentWarn, background: `${COLORS.accentWarn}10`, border: `1px solid ${COLORS.accentWarn}44`, borderRadius: 5, padding: '6px 10px', marginTop: 6 }}>
+            ⚠ {warning}
+          </div>
+        )}
       </div>
 
       <div>
